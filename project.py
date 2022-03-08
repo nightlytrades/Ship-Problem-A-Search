@@ -33,6 +33,9 @@ def sub_tuple(tup):
 def third_tuple(tup):
     return tup[2]
 
+def is_balanced(list, dif): # dif is in percent ex. 5(%) --> min(heavy,light) / max(heavy,light) >= 95
+
+
 def get_heuristic(dict):
     heuristic_value = 0
     dict_cpy = dict
