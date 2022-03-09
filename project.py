@@ -2,6 +2,7 @@
 #   Definition
 # ============================================================================================
 from operator import itemgetter
+from pickle import FALSE, TRUE
 
 # ============================================================================================
 #   find_masses
@@ -33,7 +34,15 @@ def sub_tuple(tup):
 def third_tuple(tup):
     return tup[2]
 
-def is_balanced(list, dif): # dif is in percent ex. 5(%) --> min(heavy,light) / max(heavy,light) >= 95
+def is_balanced(dict, dif): # dif is in percent ex. 5(%) --> min(heavy,light) / max(heavy,light) >= 95
+    # find the masses of each side
+    left_mass, right_mass = find_masses(dict)
+
+    # check if balanced
+    if min(left_mass,right_mass)/max(left_mass,right_mass) >= .90:
+        return 1
+    else:
+        return 0
 
 
 def get_heuristic(dict):
@@ -96,6 +105,7 @@ def get_heuristic(dict):
     # find pos of heavier side
 
     list_ptr = 0
+
     #while(balanced_score < 0.9):
     #    if balanced_mass > list[list_ptr]:
 
@@ -115,7 +125,12 @@ def main():
         dict[key] = [item1, item2]
 
     #print(dict)
-    get_heuristic(dict)
+    #get_heuristic(dict)
+    if is_balanced(dict, .9):
+        print("balanced")
+    else:
+        print("not balanced")
+
     #print(dict['01,02'][0])
     '''
     print(col)
