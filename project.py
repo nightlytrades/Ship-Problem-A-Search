@@ -3,7 +3,7 @@
 # ============================================================================================
 from operator import itemgetter
 from pickle import FALSE, TRUE
-
+import Node
 # ============================================================================================
 #   find_masses
 #   Input: dictionary, Output: weight(left), weight(right)
@@ -45,7 +45,7 @@ def is_balanced(dict, dif): # dif is in percent ex. 5(%) --> min(heavy,light) / 
         return 0
 
 
-def get_heuristic(dict):
+def get_heuristic(dict, node):
     heuristic_value = 0
     dict_cpy = dict
     weight_left, weight_right = find_masses(dict)
@@ -55,6 +55,28 @@ def get_heuristic(dict):
     if(balanced_score > 0.9):
         return 0
 
+
+
+    for line in dict_cpy:
+        row = line[:2]
+        col = line[3:]
+        idx = row + ',' + col
+
+        if max(weight_left, weight_right) == weight_left:  # left is heavier
+            if int(col) < 7:  # left
+                if int(dict[idx][0]) != 0:
+                    #list.append(int(dict[idx][0]))
+                if dict[idx][1] == "UNUSED":
+                    #list_unused.append([int(row), int(col), 0])
+        else:  # right is heavier
+            if int(col) > 6:  # right
+                if int(dict[idx][0]) != 0:
+                    #list.append(int(dict[idx][0]))
+                if dict[idx][1] == "UNUSED":
+                    #list_unused.append([int(row), int(col), 0])  # 0 meaning not bottom
+
+    # ------------------------ trying to find unsed container from the light side which should be replaced with heavy container
+    '''
     list = []
     list_unused = []
 
@@ -110,7 +132,11 @@ def get_heuristic(dict):
     #    if balanced_mass > list[list_ptr]:
 
     #print(list)
-# ============================================================================================
+    '''
+
+
+
+    # ============================================================================================
 #   Main
 # ============================================================================================
 def main():
