@@ -1,18 +1,4 @@
 
-def find_masses(dict):
-    total_weight_left = 0
-    total_weight_right = 0
-    for line in dict:
-        # print(line)
-        row = line[:2]
-        col = line[3:]
-        idx = row + ',' + col
-
-        if int(col) < 7: # left
-            total_weight_left += int(dict[idx][0])
-        else:
-            total_weight_right += int(dict[idx][0])
-    return total_weight_left, total_weight_right
 
 def find_empty_position(board, left_weight, right_weight):
     
