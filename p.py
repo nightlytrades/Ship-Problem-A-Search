@@ -11,40 +11,31 @@ def is_balanced(child): # child = [board, f, g]
                 weight_right += board[row][col]
     return (min(weight_left, weight_right) / max(weight_left, weight_right)) > 0.9
 
+
 def find_empty_position(board):
-    left_weight, right_weight = find_weight(board)
-    balanced_mass = (left_weight + right_weight) / 2
-    deficit = balanced_mass - min(left_weight, right_weight)
-    balanced_score = min(left_weight, right_weight)/ max(left_weight, right_weight)
+    empty_list = []
+    top_list = []
 
-    if(balanced_score > 0.9):
-        return 
+    for row in range(8):
+        for column in range(12):
+            if board[row][column] == 0 and row == 7:
+                empty = [row, column]
+                empty_list.append(empty)
 
-    light_side=""
+            elif board[row][column] == 0 and board[row - 1][column] != 0 and row != 0:
+                empty = [row, column]
+                empty_list.append(empty)
 
-    if left_weight>right_weight:
-        light_side='right'
-    else:
-        light_side='left'
+            elif board[row][column] != 0 and board[row - 1][column] == 0:
+                empty = [row - 1, column]
+                empty_list.append(empty)
+                container = [row, column]
+                top_list.append(container)
 
-    empty_list=[]
+    print("empty positions: ", empty_list)
+    print("top list:", top_list)
 
-    if (light_side=='right'):
-        for row in range(8):
-            for column in range(6,12):
-                empty=()
-                if board[row][column]==0:
-                    empty=(row,column)
-                    empty_list.append(empty)
-    else:
-        for row in range(8):
-            for column in range(0,6):
-                empty=()
-                if board[row][column]==0:
-                    empty=(row,column)
-                    empty_list.append(empty)
-    
-    print("empty positions: ", empty_list, " on the lighter side: ", light_side)
+    return empty_list, top_list
             
     
 def second_tuple(tup):
@@ -55,34 +46,39 @@ def generate_children(q): # q = (board, f, g) only appends children with differe
     children = []
     available, containers = find_empty_position(board) # [[7,0],[7,1],[6,2], ...]
     for posi in containers:
-        if board[posi] != 0:
+        #print('posi', posi)
+        if board[posi[0]][posi[1]] != 0:
             board_cpy = board
             #available = find_empty_position(board_cpy) # [[7,0], [6,1], [5,2], [7,3], ...]
             for a_posi in available:
                 if a_posi[1] != posi[1]: # avoid moving to the original position
-                    tmp_weight = board_cpy[posi]
-                    board_cpy[posi] = 0
-                    board_cpy[a_posi] = tmp_weight
+                    tmp_weight = board_cpy[posi[0]][posi[1]]
+                    board_cpy[posi[0]][posi[1]] = 0
+                    board_cpy[a_posi[0]][a_posi[1]] = tmp_weight
                     children.append((board_cpy, q[1], q[2]))
     return children
 
 
-def get_g(q, child): # find difference of q's board and child's board, return # of moves required to achieve
+def get_g(q, child): # find difference of q's board and child's board, return # of moves required to achieve (board, f, g)
     moves = []
+    print('q', q)
+    print('c', child)
     for row in range(8):
         for col in range(12):
             if q[0][row][col] != child[0][row][col]:
                 moves.append([row, col])
+    print('move', moves)
     return abs(moves[0][0] - moves[1][0]) + abs(moves[0][1] - moves[1][1])
 
 
-def search(init): # init(board, f, g)
+def search(init): # init
     open_list, close_list = [],[] # open list has tuple (board, cost)
-    open_list.append(init) #init has a board of weight
+    open_list.append((init, 0, 0)) #init has a board of weight
     while(open_list):
         open_list.sort(key=second_tuple) #open list sorted by cost
         q = open_list.pop()
         q_children = generate_children(q) # q_children = [(new_borad, f, g), ...] # only generating new board
+        print('kids', q_children)
         for child in q_children:
             if is_balanced(child):
                 return child
@@ -220,7 +216,8 @@ def main():
 
     #left,right=find_weight(board)
     #find_empty_position(board,left,right)
-    get_balance_heuristic(board)
+    #get_balance_heuristic(board)
+    search(board)
 
 #visual of the intial state of the ship, 8x12 matrix
 #INDX   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
@@ -231,8 +228,18 @@ def main():
 #       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       3 
 #       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       4
 #       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       5
-#       [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],       6
+#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       6
 #       [0, 99, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0]     7
+#  ]
+
+##[     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       0
+#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       1
+#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       2
+#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       3
+#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       4
+#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       5
+#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       6
+#       [0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 99, 0]     7
 #  ]
 
 # 99, 100
