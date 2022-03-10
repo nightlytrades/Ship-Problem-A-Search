@@ -48,12 +48,14 @@ def generate_children(q): # q = (board, f, g) only appends children with differe
     children = []
     available, containers = find_empty_position(board) # [[7,0],[7,1],[6,2], ...]
     for posi in containers:
+        print('position of container', posi)
         if board[posi[0]][posi[1]] != 0:
             #available = find_empty_position(board_cpy) # [[7,0], [6,1], [5,2], [7,3], ...]
             for a_posi in available:
                 board_cpy = deepcopy(board)
                 #print('new board', board_cpy)
                 if a_posi[1] != posi[1]: # avoid moving to the original position
+                    print('movable position', a_posi)
                     tmp_weight = board_cpy[posi[0]][posi[1]]
                     board_cpy[posi[0]][posi[1]] = 0
                     board_cpy[a_posi[0]][a_posi[1]] = tmp_weight
@@ -63,8 +65,6 @@ def generate_children(q): # q = (board, f, g) only appends children with differe
 
 def get_g(q, child): # find difference of q's board and child's board, return # of moves required to achieve (board, f, g)
     moves = []
-    #print('q', q)
-    #print('c', child)
     for row in range(8):
         for col in range(12):
             if q[0][row][col] != child[0][row][col]:
@@ -86,24 +86,14 @@ def search(init): # init
             if is_balanced(child):
                 return child
             else:
-                #print('aaa', get_g(q, child), type(get_g(q, child)))
-                #print('child2', child[2], type(child[2]))
+                print('child', child)
                 child[2] += get_g(q, child) # TO DO updating g
                 child[1] = child[2] + get_balance_heuristic(child[0]) # f = g + h
 
-                #for board, f, g in enumerate(open_list):
-                    #if child[0] == board and f < child[1]:
-                        # skip suc
                 for board, f, g in enumerate(close_list):
                     if not (child[0] == board and f < child[1]):
                         open_list.append(child)
         close_list.append(q)
-
-
-
-
-
-
 
 
 def get_balance_heuristic(board):
@@ -149,8 +139,8 @@ def get_balance_heuristic(board):
 
     for weight in heavy_side_weights:
         if (balance_score < .90) & (deficit * 1.2 > weight):
-            print("current deficit",deficit)
-            print("current weight: ", weight)
+            #print("current deficit",deficit)
+            #print("current weight: ", weight)
             heavy_side -= weight
             lighter_side += weight
             deficit -= weight
@@ -158,10 +148,10 @@ def get_balance_heuristic(board):
             heuristic += 1
 
     # return heuristic value
-    print("\n\n")
-    print("deficit is : ", deficit)
-    print("balance score is : ", balance_score)
-    print("heuristic is: ",  heuristic)
+    #print("\n\n")
+    #print("deficit is : ", deficit)
+    #print("balance score is : ", balance_score)
+    #print("heuristic is: ",  heuristic)
     return heuristic
 
 def find_weight(board):
@@ -195,7 +185,7 @@ def main():
 
     print("Begin")
 
-    f1 = open('ship_cases/ShipCase1.txt')
+    f1 = open('ship_cases/ShipCase2.txt')
     board= [[0 for j in range(12)] for i in range(8)]
     ##print(board)
 
@@ -222,7 +212,8 @@ def main():
     #left,right=find_weight(board)
     #find_empty_position(board,left,right)
     #get_balance_heuristic(board)
-    search(board)
+    print(search(board))
+    print('end')
 
 #visual of the intial state of the ship, 8x12 matrix
 #INDX   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
@@ -242,9 +233,9 @@ def main():
 #       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       2
 #       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       3
 #       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       4
-#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       5
-#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       6
-#       [0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 99, 0]     7
+#       [40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],      5
+#       [-, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, -],      6
+#       [-, -, -, 120, 0, 0, 0, 0, 35, -, -, -]     7
 #  ]
 
 # 99, 100
