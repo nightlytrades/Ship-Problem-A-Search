@@ -45,6 +45,16 @@ def is_balanced(dict, dif): # dif is in percent ex. 5(%) --> min(heavy,light) / 
         return 0
 
 
+def search(dict):
+    dict_cpy = dict
+    init = Node()
+    init.set_h(0)
+    init.set_g(0)
+    init.set
+
+    open_list = []
+    closed_list = []
+
 def get_heuristic(dict, node):
     heuristic_value = 0
     dict_cpy = dict
