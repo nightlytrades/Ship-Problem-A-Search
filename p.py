@@ -1,4 +1,14 @@
-
+def is_balanced(child): # child = [board, f, g]
+    board = child[0]
+    weight_left = 0
+    weight_right = 0
+    for row in range(8):
+        for col in range(12):
+            if col < 6:
+                weight_left += board[row][col]
+            else:
+                weight_right += board[row][col]
+    return (min(weight_left, weight_right) / max(weight_left, weight_right)) > 0.9
 
 def find_empty_position(board, left_weight, right_weight):
     
@@ -39,12 +49,30 @@ def find_empty_position(board, left_weight, right_weight):
 def second_tuple(tup):
     return tup[1]
 
-def generate_children(q): # q = (board, f, g)
+def generate_children(q): # q = (board, f, g) only appends children with different board. f and g are copied from parent
     board = q[0]
     children = []
-    for row in board:
-        for col in row:
+    available, containers = find_empty_position(board) # [[7,0],[7,1],[6,2], ...]
+    for posi in containers:
+        if board[posi] != 0:
+            board_cpy = board
+            #available = find_empty_position(board_cpy) # [[7,0], [6,1], [5,2], [7,3], ...]
+            for a_posi in available:
+                if a_posi[1] != posi[1]: # avoid moving to the original position
+                    tmp_weight = board_cpy[posi]
+                    board_cpy[posi] = 0
+                    board_cpy[a_posi] = tmp_weight
+                    children.append((board_cpy, q[1], q[2]))
+    return children
 
+
+def get_g(q, child): # find difference of q's board and child's board, return # of moves required to achieve
+    moves = []
+    for row in range(8):
+        for col in range(12):
+            if q[0][row][col] != child[0][row][col]:
+                moves.append([row, col])
+    return abs(moves[0][0] - moves[1][0]) + abs(moves[0][1] - moves[1][1])
 
 
 def search(init): # init(board, f, g)
@@ -58,7 +86,7 @@ def search(init): # init(board, f, g)
             if is_balanced(child):
                 return child
             else:
-                child[2] += 1 # updating g by adding 1
+                child[2] += get_g(q, child) # TO DO updating g
                 child[1] = child[2] + get_heuristic(child[0]) # f = g + h
 
                 #for board, f, g in enumerate(open_list):
@@ -145,9 +173,11 @@ def main():
 #       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       3 
 #       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       4
 #       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       5
-#       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       6
+#       [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],       6
 #       [0, 99, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0]     7
-#  ]  
+#  ]
+
+# 99, 100
 
 # ============================================================================================
 #
