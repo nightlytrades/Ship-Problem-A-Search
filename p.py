@@ -1,3 +1,16 @@
+from typing import Container
+
+
+def pick_container_to_move(left_weight,right_weight):
+    
+    heavy_side=""
+
+    if left_weight>right_weight:
+        heavy_side='right'
+    else:
+        heavy_side='left'
+
+    empty_list=[]
 
 
 def find_empty_position(board, left_weight, right_weight):
@@ -17,23 +30,32 @@ def find_empty_position(board, left_weight, right_weight):
         light_side='left'
 
     empty_list=[]
+    top_list=[]
 
-    if (light_side=='right'):
-        for row in range(8):
-            for column in range(6,12):
-                empty=()
-                if board[row][column]==0:
-                    empty=(row,column)
-                    empty_list.append(empty)
-    else:
-        for row in range(8):
-            for column in range(0,6):
-                empty=()
-                if board[row][column]==0:
-                    empty=(row,column)
-                    empty_list.append(empty)
+    for row in range(8):
+        for column in range(12):
+            if board[row][column]==0 and row==7:
+                empty=(row,column)
+                empty_list.append(empty)
+                
+            elif board[row][column]==0 and board[row-1][column]!=0 and row!=0:
+                empty=(row,column)
+                empty_list.append(empty)
+            
+            elif board[row][column]!=0 and board[row-1][column]==0:
+                weight=0
+                weight=board[row][column]
+                container=(row,column,weight)
+                top_list.append(container)
+                
+                
+
+
     
-    print("empty positions: ", empty_list, " on the lighter side: ", light_side)
+    print("empty positions: ", empty_list)
+    print("top list:", top_list)
+
+    return empty_list, top_list
             
     
 
@@ -94,10 +116,11 @@ def main():
             _column = 0
         else:
             _column += 1
+    print("--initial board--")
     print(board)
 
     left,right=find_weight(board)
-    find_empty_position(board,left,right)
+    empty_list,top_list=find_empty_position(board,left,right)
 
 #visual of the intial state of the ship, 8x12 matrix
 #INDX   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
