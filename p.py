@@ -1,4 +1,6 @@
 #from project import get_heuristic
+from copy import deepcopy
+
 def is_balanced(child): # child = [board, f, g]
     board = child[0]
     weight_left = 0
@@ -46,43 +48,46 @@ def generate_children(q): # q = (board, f, g) only appends children with differe
     children = []
     available, containers = find_empty_position(board) # [[7,0],[7,1],[6,2], ...]
     for posi in containers:
-        #print('posi', posi)
         if board[posi[0]][posi[1]] != 0:
-            board_cpy = board
             #available = find_empty_position(board_cpy) # [[7,0], [6,1], [5,2], [7,3], ...]
             for a_posi in available:
+                board_cpy = deepcopy(board)
+                #print('new board', board_cpy)
                 if a_posi[1] != posi[1]: # avoid moving to the original position
                     tmp_weight = board_cpy[posi[0]][posi[1]]
                     board_cpy[posi[0]][posi[1]] = 0
                     board_cpy[a_posi[0]][a_posi[1]] = tmp_weight
-                    children.append((board_cpy, q[1], q[2]))
+                    children.append([board_cpy, q[1], q[2]])
     return children
 
 
 def get_g(q, child): # find difference of q's board and child's board, return # of moves required to achieve (board, f, g)
     moves = []
-    print('q', q)
-    print('c', child)
+    #print('q', q)
+    #print('c', child)
     for row in range(8):
         for col in range(12):
             if q[0][row][col] != child[0][row][col]:
                 moves.append([row, col])
-    print('move', moves)
+    #print('move', moves)
     return abs(moves[0][0] - moves[1][0]) + abs(moves[0][1] - moves[1][1])
 
 
 def search(init): # init
     open_list, close_list = [],[] # open list has tuple (board, cost)
-    open_list.append((init, 0, 0)) #init has a board of weight
+    open_list.append([init, 0, 0]) #init has a board of weight
     while(open_list):
         open_list.sort(key=second_tuple) #open list sorted by cost
         q = open_list.pop()
         q_children = generate_children(q) # q_children = [(new_borad, f, g), ...] # only generating new board
-        print('kids', q_children)
+        #print('kids', q_children)
         for child in q_children:
+            #print('child', child)
             if is_balanced(child):
                 return child
             else:
+                #print('aaa', get_g(q, child), type(get_g(q, child)))
+                #print('child2', child[2], type(child[2]))
                 child[2] += get_g(q, child) # TO DO updating g
                 child[1] = child[2] + get_balance_heuristic(child[0]) # f = g + h
 
