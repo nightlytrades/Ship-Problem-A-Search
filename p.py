@@ -88,7 +88,7 @@ def search(init): # init(board, f, g)
                 return child
             else:
                 child[2] += get_g(q, child) # TO DO updating g
-                child[1] = child[2] + get_heuristic(child[0]) # f = g + h
+                child[1] = child[2] + get_balance_heuristic(child[0]) # f = g + h
 
                 #for board, f, g in enumerate(open_list):
                     #if child[0] == board and f < child[1]:
@@ -98,6 +98,7 @@ def search(init): # init(board, f, g)
                         #skip
                     #else:
                         open_list.append(child)
+        close_list.append(q)
 
 
 
