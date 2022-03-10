@@ -11,8 +11,8 @@ def is_balanced(child): # child = [board, f, g]
                 weight_right += board[row][col]
     return (min(weight_left, weight_right) / max(weight_left, weight_right)) > 0.9
 
-def find_empty_position(board, left_weight, right_weight):
-    
+def find_empty_position(board):
+    left_weight, right_weight = find_weight(board)
     balanced_mass = (left_weight + right_weight) / 2
     deficit = balanced_mass - min(left_weight, right_weight)
     balanced_score = min(left_weight, right_weight)/ max(left_weight, right_weight)
@@ -94,9 +94,7 @@ def search(init): # init(board, f, g)
                     #if child[0] == board and f < child[1]:
                         # skip suc
                 for board, f, g in enumerate(close_list):
-                    if not child[0] == board and f < child[1]:
-                        #skip
-                    #else:
+                    if not (child[0] == board and f < child[1]):
                         open_list.append(child)
         close_list.append(q)
 
