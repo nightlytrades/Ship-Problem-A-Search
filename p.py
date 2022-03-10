@@ -13,21 +13,7 @@ def pick_container_to_move(left_weight,right_weight):
     empty_list=[]
 
 
-def find_empty_position(board, left_weight, right_weight):
-    
-    balanced_mass = (left_weight + right_weight) / 2
-    deficit = balanced_mass - min(left_weight, right_weight)
-    balanced_score = min(left_weight, right_weight)/ max(left_weight, right_weight)
-
-    if(balanced_score > 0.9):
-        return 
-
-    light_side=""
-
-    if left_weight>right_weight:
-        light_side='right'
-    else:
-        light_side='left'
+def find_empty_position(board):
 
     empty_list=[]
     top_list=[]
@@ -43,15 +29,11 @@ def find_empty_position(board, left_weight, right_weight):
                 empty_list.append(empty)
             
             elif board[row][column]!=0 and board[row-1][column]==0:
-                weight=0
-                weight=board[row][column]
-                container=(row,column,weight)
-                top_list.append(container)
-                
-                
+                empty=(row-1,column)
+                empty_list.append(empty)
+                container=(row,column)
+                top_list.append(container)       
 
-
-    
     print("empty positions: ", empty_list)
     print("top list:", top_list)
 
@@ -120,7 +102,7 @@ def main():
     print(board)
 
     left,right=find_weight(board)
-    empty_list,top_list=find_empty_position(board,left,right)
+    empty_list,top_list=find_empty_position(board)
 
 #visual of the intial state of the ship, 8x12 matrix
 #INDX   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
