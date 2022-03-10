@@ -106,7 +106,7 @@ def find_empty_position(board):
 
     return empty_list, top_list
   
- def find_weight(board):
+def find_weight(board):
   
     left_list,right_list=[],[]
     weight,left_weight,right_weight=0,0,0
@@ -293,7 +293,7 @@ def main():
     #left,right=find_weight(board)
     #find_empty_position(board,left,right)
     #get_balance_heuristic(board)
-    print(search(board))
+    ##print(search(board))
     print('end')
 
 
