@@ -36,9 +36,46 @@ def find_empty_position(board, left_weight, right_weight):
     print("empty positions: ", empty_list, " on the lighter side: ", light_side)
             
     
+def second_tuple(tup):
+    return tup[1]
 
-def search():
-    open_list, close_list = [],[]
+def generate_children(q): # q = (board, f, g)
+    board = q[0]
+    children = []
+    for row in board:
+        for col in row:
+
+
+
+def search(init): # init(board, f, g)
+    open_list, close_list = [],[] # open list has tuple (board, cost)
+    open_list.append(init) #init has a board of weight
+    while(open_list):
+        open_list.sort(key=second_tuple) #open list sorted by cost
+        q = open_list.pop()
+        q_children = generate_children(q) # q_children = [(new_borad, f, g), ...] # only generating new board
+        for child in q_children:
+            if is_balanced(child):
+                return child
+            else:
+                child[2] += 1 # updating g by adding 1
+                child[1] = child[2] + get_heuristic(child[0]) # f = g + h
+
+                #for board, f, g in enumerate(open_list):
+                    #if child[0] == board and f < child[1]:
+                        # skip suc
+                for board, f, g in enumerate(close_list):
+                    if not child[0] == board and f < child[1]:
+                        #skip
+                    #else:
+                        open_list.append(child)
+
+
+
+
+
+
+
 
 def find_weight(board):
 
