@@ -18,7 +18,7 @@ class BalanceShip:
                         tmp_weight = board_cpy[posi[0]][posi[1]]
                         board_cpy[posi[0]][posi[1]] = 0
                         board_cpy[a_posi[0]][a_posi[1]] = tmp_weight
-                        child = Node(node, board)
+                        child = Node(node, board_cpy)
                         child.set_f(node.get_f())
                         child.set_g(node.get_g())
                         node.set_children(child)
@@ -64,6 +64,10 @@ class BalanceShip:
         open_list.append(init)
 
         init.print_board()
+        self.generate_children(init)
+
+        for node in init.get_children():
+            node.print_board()
 
         while(open_list):
             # sort open list based on total cost [smallest -> largest]
