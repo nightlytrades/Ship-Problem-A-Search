@@ -1,6 +1,6 @@
 class Node:
 
-    def __init__(self, parent=None, board=None, children=None):
+    def __init__(self, parent=None, board=None, children=[]):
         self.parent = parent
         self.board = board
         self.children = children
