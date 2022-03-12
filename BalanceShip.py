@@ -63,9 +63,11 @@ class BalanceShip:
         # append inital node to open list
         open_list.append(init)
 
+        init.print_board()
+
         while(open_list):
             # sort open list based on total cost [smallest -> largest]
             open_list.sort(key=lambda x:x.f)
             q = open_list.pop()
-            self.generate_children(q) # WRITE THIS
+            #self.generate_children(q) # WRITE THIS
 

@@ -49,4 +49,11 @@ class Node:
     def get_board(self):
         return self.board
 
+    def print_board(self):
+        # board is a 2d list so just iterate through and print the weight
+        for row in self.board:
+            for col in self.board:
+                print(0, " ")
+            print('\n')
+
 
