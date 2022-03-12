@@ -26,7 +26,7 @@ class Node:
         self.parent = parent
 
     def set_children(self, children):
-        self.children = children
+        self.children.append(children)
 
     def set_board(self, board):
         self.board = board
