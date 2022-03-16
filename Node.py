@@ -53,7 +53,16 @@ class Node:
         # board is a 2d list so just iterate through and print the weight
         for row in range(8):
             for col in range(12):
-                print(self.board[row][col], " ", end='')
+                if self.board[row][col] >= 10000:
+                    print(self.board[row][col], " ", end='')
+                elif self.board[row][col] >= 1000:
+                    print(self.board[row][col], "  ", end='')
+                elif self.board[row][col] >= 100:
+                    print(self.board[row][col], "   ", end='')
+                elif self.board[row][col] >= 10:
+                    print(self.board[row][col], "    ", end='')
+                else:
+                    print(self.board[row][col], "     ", end='')
             print('\n')
         print('\n')
 
