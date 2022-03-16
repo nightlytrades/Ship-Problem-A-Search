@@ -1,7 +1,7 @@
 from BalanceShip import *
 
 def main():
-    f1 = open('ship_cases/ShipCase3.txt')
+    f1 = open('ship_cases/ShipCase2.txt')
     board= [[0 for j in range(12)] for i in range(8)]
     ##print(board)
 
@@ -31,14 +31,7 @@ def main():
     obj_1 = BalanceShip(board)
     sol = obj_1.search()
 
-    next = sol
-
-    while next is not None:
-        next.print_board()
-        next = next.get_parent()
-
-
-
+    obj_1.balance(sol)
 
 
 if __name__ == "__main__":

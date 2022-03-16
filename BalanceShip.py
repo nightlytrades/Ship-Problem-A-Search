@@ -1,4 +1,6 @@
 from copy import deepcopy
+
+from numpy import empty
 from Node import *
 
 def is_balanced(child): # child = [board, f, g]
@@ -68,6 +70,13 @@ class BalanceShip:
 
         return empty_list, top_list
 
+    def find_moved_container(self, q, child):
+        moves = []
+        for row in range(8):
+            for col in range(12):
+                if q.get_board()[row][col] != child.get_board()[row][col]:
+                    moves.append([row, col])
+        return moves
     
     def search(self):
         # declare open and closed list
@@ -78,7 +87,7 @@ class BalanceShip:
 
         # append inital node to open list
         open_list.append(init)
-        init.print_board()
+        #init.print_board()
 
         while(open_list):
             # sort open list based on total cost [smallest -> largest]
@@ -89,17 +98,46 @@ class BalanceShip:
 
             # generate children of the node popped off
             self.generate_children(q) # WRITE THIS
+
             for child in q.get_children():
+                # check if ship is balanced
                 if is_balanced(child):
-                    child.print_board()
+                    #child.print_board()
                     return child
-                else:
+                else: # if not balanced, calculate g, h, & f values
                     child.set_g(1)
                     child.set_h(1)
                     child.set_f(child.get_g() + child.get_h())
+
+                    # check if board is already in the open list
+                    # *NOTE* Need to check f scores once huristic is done
                     if any(x.get_board() == child.get_board() for x in open_list):
                         continue
-                    else:
+                    else: # append to open list
                         open_list.append(child)
+            # once node is expanded, add to closed list
             close_list.append(q)
+        
+    def balance(self, node):
+        # declare stack for the nodes in the proper order
+        nodes = []
+
+        # trace back through the parents of the terminating node
+        while node is not None:
+            nodes.append(node)
+            node = node.get_parent()
+
+        # reverse the list to get correct order
+        nodes.reverse()
+        moves = []
+
+        # go through the list 
+        for i in range(len(nodes)):
+            if i+1 < len(nodes):
+                move = self.find_moved_container(nodes[i], nodes[i+1])
+                moves.append(move)
+
+        print(moves)
+        return node
+
 

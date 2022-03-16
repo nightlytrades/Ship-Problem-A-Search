@@ -61,8 +61,10 @@ class Node:
                     print(self.board[row][col], "   ", end='')
                 elif self.board[row][col] >= 10:
                     print(self.board[row][col], "    ", end='')
-                else:
+                elif self.board[row][col] >= 0:
                     print(self.board[row][col], "     ", end='')
+                else:
+                    print(self.board[row][col], "    ", end='')
             print('\n')
         print('\n')
 
