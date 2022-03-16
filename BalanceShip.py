@@ -36,6 +36,7 @@ class BalanceShip:
                         board_cpy[posi[0]][posi[1]] = 0
                         board_cpy[a_posi[0]][a_posi[1]] = tmp_weight
                         child = Node(node, board_cpy)
+                        child.set_parent(node)
                         child.set_f(node.get_f())
                         child.set_g(node.get_g())
                         node.set_children(child)

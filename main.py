@@ -29,7 +29,16 @@ def main():
             _column += 1
 
     obj_1 = BalanceShip(board)
-    obj_1.search()
+    sol = obj_1.search()
+
+    next = sol
+
+    while next is not None:
+        next.print_board()
+        next = next.get_parent()
+
+
+
 
 
 if __name__ == "__main__":
