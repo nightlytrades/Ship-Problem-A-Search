@@ -1,7 +1,7 @@
 from BalanceShip import *
 
 def main():
-    f1 = open('ship_cases/ShipCase2.txt')
+    f1 = open('ship_cases/ShipCase3.txt')
     board= [[0 for j in range(12)] for i in range(8)]
     ##print(board)
 
