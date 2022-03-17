@@ -30,7 +30,7 @@ class BalanceShip:
 
         # find every posible movement and add set them as chidren for the node passed in
         for posi in containers:
-            if board[posi[0]][posi[1] != 0]:
+            if board[posi[0]][posi[1]] != 0:
                 for a_posi in available:
                     board_cpy = deepcopy(board)
                     if a_posi[1] != posi[1]:
@@ -52,21 +52,20 @@ class BalanceShip:
                 elif board[row][column]==0 and row<7 and board[row+1][column]==-1:
                     empty=(row,column)
                     empty_list.append(empty)
-                    
-
                 elif board[row][column]==0 and row==7:
                     empty=(row,column)
                     empty_list.append(empty)
-                    
                 elif board[row][column]==0 and board[row-1][column]!=0 and row!=0:
                     empty=(row,column)
                     empty_list.append(empty)
-                
                 elif board[row][column]!=0 and board[row-1][column]==0:
                     empty=(row-1,column)
                     empty_list.append(empty)
                     container=(row,column)
-                    top_list.append(container)  
+                    top_list.append(container)
+                elif board[row][column]!=0 and row-1 < 0:
+                    container=(row,column)
+                    top_list.append(container)
 
         return empty_list, top_list
 
@@ -87,8 +86,7 @@ class BalanceShip:
 
         # append inital node to open list
         open_list.append(init)
-        #init.print_board()
-
+        
         while(open_list):
             # sort open list based on total cost [smallest -> largest]
             open_list.sort(key=lambda x:x.f)
