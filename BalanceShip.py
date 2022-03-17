@@ -75,6 +75,12 @@ class BalanceShip:
             for col in range(12):
                 if q.get_board()[row][col] != child.get_board()[row][col]:
                     moves.append([row, col])
+
+        # check position of first tuple
+        board = q.get_board()
+        if board[moves[0][0]][moves[0][1]] == 0:
+            moves[0],moves[1] = moves[1],moves[0]
+        # if its 0 on the parent(q) node then swap the 2 tuples
         return moves
     
     def search(self):
@@ -95,7 +101,7 @@ class BalanceShip:
             q = open_list.pop(0)
 
             # generate children of the node popped off
-            self.generate_children(q) # WRITE THIS
+            self.generate_children(q)
 
             for child in q.get_children():
                 # check if ship is balanced
@@ -119,7 +125,7 @@ class BalanceShip:
     def balance(self, node):
         # declare stack for the nodes in the proper order
         nodes = []
-
+        
         # trace back through the parents of the terminating node
         while node is not None:
             nodes.append(node)
@@ -129,13 +135,66 @@ class BalanceShip:
         nodes.reverse()
         moves = []
 
-        # go through the list 
+        # go through the list and find the containers that were moved
         for i in range(len(nodes)):
             if i+1 < len(nodes):
                 move = self.find_moved_container(nodes[i], nodes[i+1])
                 moves.append(move)
+        
+        count = 0
 
-        print(moves)
+        # output moves
+        for i in range(len(moves)):
+            if count == 0:
+                #print('Move crane from [0, 0] to', moves[i][0])
+                tup = deepcopy(moves[i][0])
+                tup[0] = abs(8-tup[0])
+                tup[1] = abs(1+tup[1])
+                print('Move crane from [8, 1] to', tup)
+                tup1 = deepcopy(moves[i][1])
+                tup1[0] = abs(8-tup1[0])
+                tup1[1] = abs(1+tup1[1])
+                print('Move container in position', tup, 'to position', tup1)
+                count += 1
+            else: # finish this, similar to above
+                tup = deepcopy(moves[i-1][1])
+                tup[0] = abs(8-tup[0])
+                tup[1] = abs(1+tup[1])
+                tup1 = deepcopy(moves[i][0])
+                tup1[0] = abs(8-tup1[0])
+                tup1[1] = abs(1+tup1[1])
+                tup2 = deepcopy(moves[i][1])
+                tup2[0] = abs(8-tup2[0])
+                tup2[1] = abs(1+tup2[1])
+                print('Move crane from position', tup, 'to', tup1)
+                print('Move container in position', tup1, 'to position', tup2)
         return node
 
+    def test_container_func(self, node):
+        node2 = node.get_parent()
+        board = node2.get_board()
 
+        node2.print_board()
+        node.print_board()
+
+        move = self.find_moved_container(node2, node)
+        print(move[0][0])
+        print(move[0][1])
+
+        print(board[move[0][0]][move[0][1]])
+        print(move)
+
+
+    def print_trace(self, node):
+        nodes = []
+
+        # trace back through the parents of the terminating node
+        while node is not None:
+            nodes.append(node)
+            node = node.get_parent()
+
+        # reverse the list to get correct order
+        nodes.reverse()
+
+        for n in nodes:
+            n.print_board()
