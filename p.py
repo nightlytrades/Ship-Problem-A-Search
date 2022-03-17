@@ -1,4 +1,3 @@
-
 #from project import get_heuristic
 from copy import deepcopy
 
@@ -30,7 +29,7 @@ def find_container_to_move(board,left_weight,right_weight):
     if heavy_side=='left':
         for row in range(8):
             for column in range(6):
-                if board[row][column]=="NAN":
+                if board[row][column]==-1:
                     continue
                 container_weight=board[row][column]
                 move_dict[container_weight]=(row,column)
@@ -38,7 +37,7 @@ def find_container_to_move(board,left_weight,right_weight):
     else:
         for row in range(8):
             for column in range(6,12):
-                if board[row][column]=="NAN":
+                if board[row][column]==-1:
                     continue
                 container_weight=board[row][column]
                 move_dict[container_weight]=(row,column)
@@ -65,7 +64,7 @@ def find_container_to_move(board,left_weight,right_weight):
         else:
             container_to_move=(_row, _column)
             flg = 0
-            print("moving this", container_to_move)
+            #print("moving this", container_to_move)
 
             return container_to_move
 
@@ -79,9 +78,9 @@ def find_empty_position(board):
         for column in range(12):
             ##print("r/c", row,column)
             
-            if board[row][column]=="NAN":
+            if board[row][column]==-1:
                 continue
-            elif board[row][column]==0 and row<7 and board[row+1][column]=="NAN":
+            elif board[row][column]==0 and row<7 and board[row+1][column]==-1:
                 empty=(row,column)
                 empty_list.append(empty)
                 
@@ -101,19 +100,19 @@ def find_empty_position(board):
                 top_list.append(container)       
 
 
-    print("empty positions: ", empty_list)
-    print("top list:", top_list)
+    #print("empty positions: ", empty_list)
+    #print("top list:", top_list)
 
     return empty_list, top_list
   
- def find_weight(board):
+def find_weight(board):
   
     left_list,right_list=[],[]
     weight,left_weight,right_weight=0,0,0
     
     for row in range(8):
         for column in range(12):
-            if board[row][column]=="NAN":
+            if board[row][column]==-1:
                 continue
             elif column<6:
                 weight=board[row][column]
@@ -130,7 +129,7 @@ def find_empty_position(board):
     ##print("left: ", left_list)
     ##print("right: ", right_list)
 
-    print("total weight left: ", left_weight, "total weight right: ", right_weight)
+    #print("total weight left: ", left_weight, "total weight right: ", right_weight)
 
     return left_weight,right_weight  
     
@@ -142,14 +141,14 @@ def generate_children(q): # q = (board, f, g) only appends children with differe
     children = []
     available, containers = find_empty_position(board) # [[7,0],[7,1],[6,2], ...]
     for posi in containers:
-        print('position of container', posi)
+        #print('position of container', posi)
         if board[posi[0]][posi[1]] != 0:
             #available = find_empty_position(board_cpy) # [[7,0], [6,1], [5,2], [7,3], ...]
             for a_posi in available:
                 board_cpy = deepcopy(board)
                 #print('new board', board_cpy)
                 if a_posi[1] != posi[1]: # avoid moving to the original position
-                    print('movable position', a_posi)
+                    #print('movable position', a_posi)
                     tmp_weight = board_cpy[posi[0]][posi[1]]
                     board_cpy[posi[0]][posi[1]] = 0
                     board_cpy[a_posi[0]][a_posi[1]] = tmp_weight
@@ -174,13 +173,11 @@ def search(init): # init
         open_list.sort(key=second_tuple) #open list sorted by cost
         q = open_list.pop()
         q_children = generate_children(q) # q_children = [(new_borad, f, g), ...] # only generating new board
-        #print('kids', q_children)
         for child in q_children:
-            #print('child', child)
             if is_balanced(child):
+                print(child)
                 return child
             else:
-                print('child', child)
                 child[2] += get_g(q, child) # TO DO updating g
                 child[1] = child[2] + get_balance_heuristic(child[0]) # f = g + h
 
@@ -233,19 +230,11 @@ def get_balance_heuristic(board):
 
     for weight in heavy_side_weights:
         if (balance_score < .90) & (deficit * 1.2 > weight):
-            #print("current deficit",deficit)
-            #print("current weight: ", weight)
             heavy_side -= weight
             lighter_side += weight
             deficit -= weight
             balance_score = min(heavy_side,lighter_side)/max(heavy_side,lighter_side)
             heuristic += 1
-
-    # return heuristic value
-    #print("\n\n")
-    #print("deficit is : ", deficit)
-    #print("balance score is : ", balance_score)
-    #print("heuristic is: ",  heuristic)
     return heuristic
   
 
@@ -255,7 +244,7 @@ def main():
 
     print("Begin")
 
-    f1 = open('ship_cases/ShipCase2.txt')
+    f1 = open('ship_cases/ShipCase1.txt')
     board= [[0 for j in range(12)] for i in range(8)]
     ##print(board)
 
@@ -272,7 +261,7 @@ def main():
         dict[key] = [item1, item2]
 
         if item2=="NAN":
-            board[_row][_column] = item2
+            board[_row][_column] = -1
         else:
             board[_row][_column] = int(item1)
         # Next one
@@ -281,19 +270,7 @@ def main():
             _column = 0
         else:
             _column += 1
-
-    print("--initial board--")
     print(board)
-
-    left,right=find_weight(board)
-    empty_list,top_list=find_empty_position(board)
-    move_this=find_container_to_move(board,left,right)
-    #print(board)
-
-    #left,right=find_weight(board)
-    #find_empty_position(board,left,right)
-    #get_balance_heuristic(board)
-    print(search(board))
     print('end')
 
 

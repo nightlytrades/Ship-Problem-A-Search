@@ -1,5 +1,8 @@
+
 import numpy as np
 from copy import deepcopy
+from numpy import empty
+
 from Node import *
 
 def is_balanced(child): # child = [board, f, g]
@@ -51,7 +54,7 @@ class BalanceShip:
                 elif board[row][column]==0 and row<7 and board[row+1][column]==-1:
                     empty=(row,column)
                     empty_list.append(empty)
-                    
+    
 
                 elif board[row][column]==0 and row==7:
                     empty=(row,column)
@@ -60,12 +63,27 @@ class BalanceShip:
                 elif board[row][column]==0 and board[row-1][column]!=0 and row!=0:
                     empty=(row,column)
                     empty_list.append(empty)
-                
+
                 elif board[row][column]!=0 and board[row-1][column]==0:
                     empty=(row-1,column)
                     empty_list.append(empty)
                     container=(row,column)
-                    top_list.append(container)  
+                    top_list.append(container)
+                    top_list.append(container)
+                    
+                elif board[row][column]!=0 and row-1 < 0:
+                    container=(row,column)
+                    top_list.append(container)
+
+        return empty_list, top_list
+
+    def find_moved_container(self, q, child):
+        moves = []
+        for row in range(8):
+            for col in range(12):
+                if q.get_board()[row][col] != child.get_board()[row][col]:
+                    moves.append([row, col])
+        return moves
 
         return empty_list, top_list
      
@@ -106,6 +124,7 @@ class BalanceShip:
         return heuristic
             
 
+
     def search(self):
         # declare open and closed list
         open_list, close_list = [],[]
@@ -117,13 +136,14 @@ class BalanceShip:
         open_list.append(init)
         init.print_board()
 
+
         while(open_list):
             # sort open list based on total cost [smallest -> largest]
             open_list.sort(key=lambda x:x.f)
 
             # pop the highest priority node off of the list
             q = open_list.pop(0)
-            iters=0
+
             # generate children of the node popped off
             self.generate_children(q) # WRITE THIS
             for child in q.get_children():
@@ -146,5 +166,28 @@ class BalanceShip:
                     else:
                         open_list.append(child)
             close_list.append(q)
+        
+    def balance(self, node):
+        # declare stack for the nodes in the proper order
+        nodes = []
+
+        # trace back through the parents of the terminating node
+        while node is not None:
+            nodes.append(node)
+            node = node.get_parent()
+
+        # reverse the list to get correct order
+        nodes.reverse()
+        moves = []
+
+        # go through the list 
+        for i in range(len(nodes)):
+            if i+1 < len(nodes):
+                move = self.find_moved_container(nodes[i], nodes[i+1])
+                moves.append(move)
+
+        print(moves)
+        return node
+
 
 
