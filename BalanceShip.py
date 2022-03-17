@@ -68,71 +68,40 @@ class BalanceShip:
                     top_list.append(container)  
 
         return empty_list, top_list
-    
-    def find_weight(self,board):
-  
-        left_list,right_list=[],[]
-        weight,left_weight,right_weight=0,0,0
+     
+
+    def get_heuristic(self,parent_board,child_board):
         
-        for row in range(8):
-            for column in range(12):
-                if board[row][column]==-1:
-                    continue
-                elif column<6:
-                    weight=board[row][column]
-                    left_list.append(weight)
-                    ##print("c/r: ", column, row, "left value",weight)
-                else:
-                    weight=board[row][column]
-                    right_list.append(weight)
-                    ##print("c/r: ", column, row, "right value",weight)
-
-        left_weight=sum(left_list)
-        right_weight=sum(right_list)
-
-        ##print("left: ", left_list)
-        ##print("right: ", right_list)
-
-        #print("total weight left: ", left_weight, "total weight right: ", right_weight)
-
-        return left_weight,right_weight  
-
-    def get_heuristic(self):
-        
-        # start=init_board
-        # goal=new_board
-        start=np.array([ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],     
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],    
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],     
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],     
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-                [0, 99, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0] ])
-        new=np.array([ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],       
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],     
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],    
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],     
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],     
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-                [0, 99, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0] ])
         distance=0
-        this_val=np.argwhere(new==100)
+        boards=[parent_board,child_board]
+        
+        ##putting zero for "NAN"
+        for board in boards:
+            for row in range(8):
+                for column in range(12):
+                    #it was =='NAN' but I noticed that 'NAN' is replaced with -1, 
+                    #when parent/child board is passed
+                    if board[row][column]==-1:
+                        board[row][column]=0
 
-        print("this", this_val)
-        print("7:", this_val[0][0])
-        print("9:", this_val[0][1])
+        parent_board=np.array(parent_board)
+        child_board=np.array(child_board)
+      
+        ##calculating manhattan distance
         for row in range(8):
             for column in range(12):
-                start_value = start[row][column]
-                if start_value !=0:
-                    pos=np.argwhere(new==start_value)
+                _value = parent_board[row][column]
+                ##calculating distance for the containers moved
+                if _value !=0:
+                    pos=np.argwhere(child_board==_value)
+                    print("pos",pos)
                     pos_row=pos[0][0]
                     pos_column=pos[0][1]
                     distance += abs(column - pos_column) + abs(row - pos_row)
+        
         heuristic=distance
-        print("man dis ", heuristic)
+        #here our heuristic value h, is in minutes
+        print("manhattan distance: ", heuristic)
 
         return heuristic
             
@@ -154,7 +123,7 @@ class BalanceShip:
 
             # pop the highest priority node off of the list
             q = open_list.pop(0)
-
+            iters=0
             # generate children of the node popped off
             self.generate_children(q) # WRITE THIS
             for child in q.get_children():
@@ -163,12 +132,14 @@ class BalanceShip:
                     return child
                 else:
                     child.set_g(1)
-                    init_board=q.get_board
-                    new_board=child.get_board
+
+                    #getting parent/child boards to compute h
+                    parent_board=q.get_board()
+                    child_board=child.get_board()
+
                     ##calling the heuristic function and returning h value
-                    h=child.get_heuristic(init_board,new_board)
+                    h=self.get_heuristic(parent_board,child_board)
                     child.set_h(h)
-                    ##child.set_h(1)
                     child.set_f(child.get_g() + child.get_h())
                     if any(x.get_board() == child.get_board() for x in open_list):
                         continue
