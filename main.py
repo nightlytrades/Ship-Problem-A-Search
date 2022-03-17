@@ -1,7 +1,7 @@
 from BalanceShip import *
 
 def main():
-    f1 = open('ship_cases/ShipCase4.txt')
+    f1 = open('ship_cases/ShipCase2.txt')
     board= [[0 for j in range(12)] for i in range(8)]
     ##print(board)
 
@@ -32,6 +32,9 @@ def main():
     sol = obj_1.search()
 
     obj_1.balance(sol)
+    obj_1.print_trace(sol)
+
+    #obj_1.print_trace(sol)
 
 
 if __name__ == "__main__":
