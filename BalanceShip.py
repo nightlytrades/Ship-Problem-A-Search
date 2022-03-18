@@ -32,7 +32,7 @@ class BalanceShip:
 
         # find every posible movement and add set them as chidren for the node passed in
         for posi in containers:
-            if board[posi[0]][posi[1] != 0]:
+            if board[posi[0]][posi[1]] != 0:
                 for a_posi in available:
                     board_cpy = deepcopy(board)
                     if a_posi[1] != posi[1]:
@@ -44,6 +44,32 @@ class BalanceShip:
                         child.set_f(node.get_f())
                         child.set_g(node.get_g())
                         node.set_children(child)
+    def find_weight(self, board):
+        left_list,right_list=[],[]
+        weight,left_weight,right_weight=0,0,0
+        
+        for row in range(8):
+            for column in range(12):
+                if board[row][column]==-1:
+                    continue
+                elif column<6:
+                    weight=board[row][column]
+                    left_list.append(weight)
+                    ##print("c/r: ", column, row, "left value",weight)
+                else:
+                    weight=board[row][column]
+                    right_list.append(weight)
+                    ##print("c/r: ", column, row, "right value",weight)
+
+        left_weight=sum(left_list)
+        right_weight=sum(right_list)
+
+        ##print("left: ", left_list)
+        ##print("right: ", right_list)
+
+        #print("total weight left: ", left_weight, "total weight right: ", right_weight)
+
+        return left_weight,right_weight 
 
     def find_empty_position(self, board):
         empty_list, top_list = [],[]
@@ -54,27 +80,22 @@ class BalanceShip:
                 elif board[row][column]==0 and row<7 and board[row+1][column]==-1:
                     empty=(row,column)
                     empty_list.append(empty)
-    
-
                 elif board[row][column]==0 and row==7:
                     empty=(row,column)
                     empty_list.append(empty)
-                    
                 elif board[row][column]==0 and board[row-1][column]!=0 and row!=0:
                     empty=(row,column)
                     empty_list.append(empty)
-
                 elif board[row][column]!=0 and board[row-1][column]==0:
                     empty=(row-1,column)
                     empty_list.append(empty)
                     container=(row,column)
                     top_list.append(container)
                     top_list.append(container)
-                    
                 elif board[row][column]!=0 and row-1 < 0:
                     container=(row,column)
                     top_list.append(container)
-
+        empty_list.sort(key=lambda x:x[1])
         return empty_list, top_list
 
     def find_moved_container(self, q, child):
@@ -85,14 +106,69 @@ class BalanceShip:
                     moves.append([row, col])
 
         # check position of first tuple
-        board = q.get_board()
-        if board[moves[0][0]][moves[0][1]] == 0:
-            moves[0],moves[1] = moves[1],moves[0]
         # if its 0 on the parent(q) node then swap the 2 tuples
+        board = q.get_board()
+        if moves:
+            if board[moves[0][0]][moves[0][1]] == 0:
+                moves[0],moves[1] = moves[1],moves[0]
         return moves
 
-        return empty_list, top_list
-     
+    def calc_g(self, moved_containers):
+        if moved_containers:
+            return abs(moved_containers[0][0] - moved_containers[1][0]) + abs(moved_containers[0][1] - moved_containers[1][1])
+        return 1
+
+    def get_balance_heuristic(self, board):
+        # find weights of the left and right side
+        left_weight, right_weight = self.find_weight(board)
+
+        # find the balance mass
+        balance_mass = (left_weight + right_weight) / 2
+
+        # determine what side is heavier
+        heavy_side = max(left_weight, right_weight)
+        lighter_side = min(left_weight, right_weight)
+
+        # find the deficit
+        deficit = balance_mass - lighter_side
+
+        # get current balance score
+        balance_score = lighter_side / heavy_side
+
+        # find weights on the heavy side
+        # add those weights to a list
+        # *NOTE: for now just taking weights, 
+        # will account for containder positions 
+        # after I get this simple heuristic working*
+        heavy_side_weights = []
+
+        if heavy_side == left_weight: # heavy side is left side
+            for i in range(len(board)):
+                for j in range(6):
+                    if board[i][j] != 0:
+                        heavy_side_weights.append(board[i][j])
+        else: # else heavy side is the right side
+            for i in range(len(board)):
+                for j in range(6,12):
+                    if board[i][j] != 0:
+                        heavy_side_weights.append(board[i][j])
+
+        # sort the weights in decending order
+        heavy_side_weights.sort(reverse=True)
+
+        # slide down the list to find weights <= our deficit
+        heuristic = 0
+
+        for weight in heavy_side_weights:
+            if (balance_score < .90) & (deficit * 1.2 > weight):
+                heavy_side -= weight
+                lighter_side += weight
+                deficit -= weight
+                balance_score = min(heavy_side,lighter_side)/max(heavy_side,lighter_side)
+                heuristic += 1
+        if balance_score < .90:
+            return 0
+        return heuristic
 
     def get_heuristic(self,parent_board,child_board):
         
@@ -138,10 +214,13 @@ class BalanceShip:
         # create initial node
         init = Node(None, self.board)
 
+        # check if balance is possible
+        if self.get_balance_heuristic(init.get_board()) == 0:
+            print('Balance is not possible')
+            return init
+
         # append inital node to open list
         open_list.append(init)
-        init.print_board()
-
 
         while(open_list):
             # sort open list based on total cost [smallest -> largest]
@@ -154,17 +233,14 @@ class BalanceShip:
             self.generate_children(q)
             for child in q.get_children():
                 if is_balanced(child):
-                    child.print_board()
                     return child
                 else:
-                    child.set_g(1)
-
+                    moves = self.find_moved_container(q,child)
+                    child.set_g(self.calc_g(moves))
                     #getting parent/child boards to compute h
-                    parent_board=q.get_board()
                     child_board=child.get_board()
-
                     ##calling the heuristic function and returning h value
-                    h=self.get_heuristic(parent_board,child_board)
+                    h=self.get_balance_heuristic(child_board)
                     child.set_h(h)
                     child.set_f(child.get_g() + child.get_h())
                     if any(x.get_board() == child.get_board() for x in open_list):
@@ -173,7 +249,7 @@ class BalanceShip:
                         open_list.append(child)
             close_list.append(q)
         
-    def balance(self, node):
+    def balance(self, node, file_name):
         # declare stack for the nodes in the proper order
         nodes = []
         
@@ -193,6 +269,10 @@ class BalanceShip:
                 moves.append(move)
         
         count = 0
+        build_string = ''
+
+        # TODO: still need to calculate total time
+        total_time = 0
 
         # output moves
         for i in range(len(moves)):
@@ -201,11 +281,11 @@ class BalanceShip:
                 tup = deepcopy(moves[i][0])
                 tup[0] = abs(8-tup[0])
                 tup[1] = abs(1+tup[1])
-                print('Move crane from [8, 1] to', tup)
+                build_string += 'Move crane from [8, 1] to ' + str(tup) + '\n'
                 tup1 = deepcopy(moves[i][1])
                 tup1[0] = abs(8-tup1[0])
                 tup1[1] = abs(1+tup1[1])
-                print('Move container in position', tup, 'to position', tup1)
+                build_string += 'Move container in position ' + str(tup) + ' to position ' + str(tup1) + '\n'
                 count += 1
             else: # finish this, similar to above
                 tup = deepcopy(moves[i-1][1])
@@ -217,9 +297,54 @@ class BalanceShip:
                 tup2 = deepcopy(moves[i][1])
                 tup2[0] = abs(8-tup2[0])
                 tup2[1] = abs(1+tup2[1])
-                print('Move crane from position', tup, 'to', tup1)
-                print('Move container in position', tup1, 'to position', tup2)
-        return node
+                build_string += 'Move crane from position ' + str(tup) + ' to ' + str(tup1) + '\n'
+                build_string += 'Move container in position ' + str(tup1) + ' to position ' + str(tup2) + '\n'
+
+        # write moves to a file
+        write = file_name.split('.')[0] + 'TRACE.txt'
+        with open(write, 'w') as f: 
+            f.write(build_string)
+        f.close()
+        return moves
+    
+    def swap_dict_pos(self, dict, moves, file_name):
+        for move in moves:
+            # changing values of the positions to match the dictionary
+            tup = deepcopy(move[0])
+            tup[0] = abs(8-tup[0])
+            tup[1] = abs(1+tup[1])
+
+            tup1 = deepcopy(move[1])
+            tup1[0] = abs(8-tup1[0])
+            tup1[1] = abs(1+tup1[1])
+
+            # modifying the string1 to match the format
+            str1 = str(tup).replace(' ','').replace('[','').replace(']','')
+            str1_edit = '0' + str1
+
+            # checking length of str if its < 5 add a 0 in 3rd pos
+            if len(str1_edit) < 5:
+                str1_edit = str1_edit[0:3] + '0' + str1_edit[3:]
+
+            # modifying str2 to match format
+            str2 = str(tup1).replace(' ', '').replace('[','').replace(']','')
+            str2_edit = '0' + str2
+
+            # checking length of str if its < 5 add a 0 in 3rd pos
+            if len(str2_edit) < 5:
+                str2_edit = str2_edit[0:3] + '0' + str2_edit[3:]
+
+            # swap the values in the dictionary
+            dict[str1_edit],dict[str2_edit] = dict[str2_edit],dict[str1_edit]
+
+        # printing the values in the dictionary
+        #for key, value in dict.items():
+        #    print('[' + str(key) + '], ' + '{' + value[0] + '}, ' + value[1])
+
+        # write to file
+        self.write_to_file(file_name,dict)
+        return dict
+
 
     def test_container_func(self, node):
         node2 = node.get_parent()
@@ -235,6 +360,15 @@ class BalanceShip:
         print(board[move[0][0]][move[0][1]])
         print(move)
 
+    def possible_balance(self, node):
+        board = node.get_board()
+        weights = []
+        for row in range(8):
+            for col in range(12):
+                if board[row][col] > 0:
+                    weights.append(board[row][col])
+        print(weights)
+        return False
 
     def print_trace(self, node):
         nodes = []
@@ -246,3 +380,10 @@ class BalanceShip:
 
         # reverse the list to get correct order
         nodes.reverse()
+
+    def write_to_file(self, file_name, dict):
+        write = file_name.split('.')[0] + 'UPDATED.txt'
+        with open(write, 'w') as f: 
+            for key, value in dict.items(): 
+                f.write('[' + str(key) + '], ' + '{' + value[0] + '}, ' + value[1] + '\n')
+        f.close()
