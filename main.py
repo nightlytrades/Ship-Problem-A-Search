@@ -55,7 +55,6 @@ def main():
             # show final maifest preview
             print('Final Manifest Preview')
             sol.print_board()
-            print(sol.get_f())
 
             # balance the ship
             move = obj_1.balance(sol, sys.argv[1])
