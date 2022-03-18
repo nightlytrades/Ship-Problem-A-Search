@@ -44,6 +44,7 @@ class BalanceShip:
                         child.set_f(node.get_f())
                         child.set_g(node.get_g())
                         node.set_children(child)
+
     def find_weight(self, board):
         left_list,right_list=[],[]
         weight,left_weight,right_weight=0,0,0
@@ -55,19 +56,12 @@ class BalanceShip:
                 elif column<6:
                     weight=board[row][column]
                     left_list.append(weight)
-                    ##print("c/r: ", column, row, "left value",weight)
                 else:
                     weight=board[row][column]
                     right_list.append(weight)
-                    ##print("c/r: ", column, row, "right value",weight)
 
         left_weight=sum(left_list)
         right_weight=sum(right_list)
-
-        ##print("left: ", left_list)
-        ##print("right: ", right_list)
-
-        #print("total weight left: ", left_weight, "total weight right: ", right_weight)
 
         return left_weight,right_weight 
 
@@ -100,8 +94,12 @@ class BalanceShip:
 
     def find_moved_container(self, q, child):
         moves = []
+
+        # go through board and find the positions that have changed
         for row in range(8):
             for col in range(12):
+                # if parent baord and child board do not match in the same
+                # position append that pos to moves
                 if q.get_board()[row][col] != child.get_board()[row][col]:
                     moves.append([row, col])
 
@@ -114,6 +112,7 @@ class BalanceShip:
         return moves
 
     def calc_g(self, moved_containers):
+        # calculate the distance between the moved containers
         if moved_containers:
             return abs(moved_containers[0][0] - moved_containers[1][0]) + abs(moved_containers[0][1] - moved_containers[1][1])
         return 1
@@ -159,6 +158,7 @@ class BalanceShip:
         # slide down the list to find weights <= our deficit
         heuristic = 0
 
+        # move weights to find minimum number of containers that can be moved
         for weight in heavy_side_weights:
             if (balance_score < .90) & (deficit * 1.2 > weight):
                 heavy_side -= weight
@@ -166,6 +166,7 @@ class BalanceShip:
                 deficit -= weight
                 balance_score = min(heavy_side,lighter_side)/max(heavy_side,lighter_side)
                 heuristic += 1
+        # if balance score is < .9 then balance is not possible
         if balance_score < .90:
             return 0
         return heuristic
@@ -277,7 +278,7 @@ class BalanceShip:
         # output moves
         for i in range(len(moves)):
             if count == 0:
-                #print('Move crane from [0, 0] to', moves[i][0])
+                # calculations to get the positions to match the manifest
                 tup = deepcopy(moves[i][0])
                 tup[0] = abs(8-tup[0])
                 tup[1] = abs(1+tup[1])
@@ -345,7 +346,7 @@ class BalanceShip:
         self.write_to_file(file_name,dict)
         return dict
 
-
+    # used for testing purposes
     def test_container_func(self, node):
         node2 = node.get_parent()
         board = node2.get_board()
@@ -360,16 +361,6 @@ class BalanceShip:
         print(board[move[0][0]][move[0][1]])
         print(move)
 
-    def possible_balance(self, node):
-        board = node.get_board()
-        weights = []
-        for row in range(8):
-            for col in range(12):
-                if board[row][col] > 0:
-                    weights.append(board[row][col])
-        print(weights)
-        return False
-
     def print_trace(self, node):
         nodes = []
 
@@ -382,7 +373,10 @@ class BalanceShip:
         nodes.reverse()
 
     def write_to_file(self, file_name, dict):
+        # update the name of the file
         write = file_name.split('.')[0] + 'UPDATED.txt'
+
+        # open file and write the values to file
         with open(write, 'w') as f: 
             for key, value in dict.items(): 
                 f.write('[' + str(key) + '], ' + '{' + value[0] + '}, ' + value[1] + '\n')

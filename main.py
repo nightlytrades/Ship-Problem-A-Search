@@ -64,9 +64,5 @@ def main():
         except IOError:
             print('Could not read file: ', sys.argv[1])
 
-    # TODO: write new manifest to file
-    # TODO: write steps to new file
-
-
 if __name__ == "__main__":
     main()
