@@ -222,6 +222,7 @@ class BalanceShip:
 
         # append inital node to open list
         open_list.append(init)
+        init.print_board()
 
         while(open_list):
             # sort open list based on total cost [smallest -> largest]
@@ -237,7 +238,7 @@ class BalanceShip:
                     return child
                 else:
                     moves = self.find_moved_container(q,child)
-                    child.set_g(self.calc_g(moves))
+                    child.set_g(self.calc_g(moves) + q.get_f())
                     #getting parent/child boards to compute h
                     child_board=child.get_board()
                     ##calling the heuristic function and returning h value
@@ -245,6 +246,8 @@ class BalanceShip:
                     child.set_h(h)
                     child.set_f(child.get_g() + child.get_h())
                     if any(x.get_board() == child.get_board() for x in open_list):
+                        continue
+                    elif any(x.get_board() == child.get_board() for x in close_list):
                         continue
                     else:
                         open_list.append(child)
@@ -300,6 +303,20 @@ class BalanceShip:
                 tup2[1] = abs(1+tup2[1])
                 build_string += 'Move crane from position ' + str(tup) + ' to ' + str(tup1) + '\n'
                 build_string += 'Move container in position ' + str(tup1) + ' to position ' + str(tup2) + '\n'
+
+        # get distance
+        dist_list = []
+        distance = 0
+        for move in moves:
+            dist_list.append(move[0])
+            dist_list.append(move[1])
+        for i in range(len(dist_list)):
+            if i + 1 < len(dist_list):
+                distance += abs(dist_list[i][0] - dist_list[i+1][0]) + abs(dist_list[i][1] - dist_list[i+1][1])
+
+        if (distance > 0):
+            distance += 10
+        build_string += 'Estimated time to balance is ' + str(distance) + ' minutes'
 
         # write moves to a file
         write = file_name.split('.')[0] + 'TRACE.txt'
